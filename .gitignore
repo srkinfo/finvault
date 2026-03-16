@@ -1,0 +1,16 @@
+# Java 
+target/ 
+*.class 
+*.jar 
+# Node 
+node_modules/ 
+build/ 
+.env 
+# IDE 
+.idea/ 
+.vscode/ 
+*.iml 
+# Terraform 
+.terraform/ 
+*.tfstate 
+*.tfvars 
