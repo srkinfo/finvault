@@ -7,12 +7,13 @@ services:
       POSTGRES_DB: finvaultdb
       POSTGRES_USER: finvault
       POSTGRES_PASSWORD: finvault123
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U finvault"]
+      test: ["CMD-SHELL", "pg_isready -U finvault -d finvaultdb"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,6 +30,7 @@ services:
       SPRING_DATASOURCE_USERNAME: finvault
       SPRING_DATASOURCE_PASSWORD: finvault123
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
       FINVAULT_JWT_SECRET: FinVaultSuperSecretKey2024ChangeInProduction
       FINVAULT_JWT_EXPIRATION: 86400000
     depends_on:
