@@ -26,6 +26,7 @@ public class Budget {
     private Double budgetLimit;
 
     @Column(name = "spent_amount")
+    @Builder.Default
     private Double spentAmount = 0.0;
 
     @Column(name = "month")
@@ -35,6 +36,7 @@ public class Budget {
     private Integer year;
 
     @Column(name = "alert_threshold")
+    @Builder.Default
     private Double alertThreshold = 80.0;
 
     public Double getPercentageUsed() {

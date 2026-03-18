@@ -45,6 +45,7 @@ public class Transaction {
     private String merchantName;
 
     @Column(name = "is_recurring")
+    @Builder.Default
     private Boolean isRecurring = false;
 
     @Column(name = "tags")
@@ -54,6 +55,7 @@ public class Transaction {
     private String notes;
 
     @Column(name = "created_at")
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum Category {

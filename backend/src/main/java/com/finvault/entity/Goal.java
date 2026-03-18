@@ -30,12 +30,14 @@ public class Goal {
     private Double targetAmount;
 
     @Column(name = "current_amount")
+    @Builder.Default
     private Double currentAmount = 0.0;
 
     @Column(name = "target_date")
     private LocalDate targetDate;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private GoalStatus status = GoalStatus.ACTIVE;
 
     @Enumerated(EnumType.STRING)
@@ -44,6 +46,7 @@ public class Goal {
     @Column(name = "icon")
     private String icon;
 
+    @Builder.Default
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 

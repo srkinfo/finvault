@@ -38,12 +38,15 @@ public class User {
     private Double savingsGoal;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private RiskProfile riskProfile = RiskProfile.MODERATE;
 
     @Column(name = "currency", length = 3)
+    @Builder.Default
     private String currency = "USD";
 
     @Column(name = "created_at")
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
