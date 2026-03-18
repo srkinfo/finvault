@@ -1,4 +1,4 @@
-﻿package com.finvault.controller;
+package com.finvault.controller;
 import com.finvault.dto.AuthDTO;
 import com.finvault.entity.User;
 import com.finvault.repository.UserRepository;

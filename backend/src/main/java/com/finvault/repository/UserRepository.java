@@ -1,4 +1,4 @@
-﻿package com.finvault.repository;
+package com.finvault.repository;
 import com.finvault.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -1,4 +1,4 @@
-﻿package com.finvault.dto;
+package com.finvault.dto;
 import lombok.Data;
 import jakarta.validation.constraints.*;
 

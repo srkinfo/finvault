@@ -1,4 +1,4 @@
-﻿package com.finvault.entity;
+package com.finvault.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

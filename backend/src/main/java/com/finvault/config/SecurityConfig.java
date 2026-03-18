@@ -1,4 +1,4 @@
-﻿package com.finvault.config;
+package com.finvault.config;
 import com.finvault.repository.UserRepository;
 import com.finvault.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
@@ -25,13 +25,16 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtAuthFilter jwtAuthFilter;
-    private final UserRepository userRepository;
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private JwtAuthFilter jwtAuthFilter;
+    
+    @org.springframework.beans.factory.annotation.Autowired
+    private UserRepository userRepository;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, @org.springframework.context.annotation.Lazy JwtAuthFilter jwtAuthFilter) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
