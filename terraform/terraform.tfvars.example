@@ -1,0 +1,17 @@
+# AWS Configuration
+aws_region = "ap-southeast-1"
+
+# EC2 Configuration
+instance_type = "t2.micro"
+
+# IMPORTANT: Set your EC2 key pair name below
+# You must create an EC2 key pair in AWS before terraform apply
+key_pair_name = "your-ec2-key-pair-name"
+
+# Security Configuration
+ssh_allowed_cidrs = ["0.0.0.0/0"]  # WARNING: 0.0.0.0/0 allows SSH from anywhere
+# Recommended: Restrict to your IP
+# ssh_allowed_cidrs = ["YOUR_IP/32"]
+
+# Docker Registry
+docker_registry = "srkinfo"
