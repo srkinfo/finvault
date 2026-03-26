@@ -3,9 +3,8 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # Install dependencies (use lockfile for deterministic builds)
-COPY package.json package-lock.json ./
+COPY package.json ./
 RUN npm install
-
 # Copy source and build
 COPY . .
 RUN npm run build
