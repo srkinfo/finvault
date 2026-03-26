@@ -9,16 +9,10 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:h2:mem:finvaultdb
-      - SPRING_DATASOURCE_USERNAME=sa
-      - SPRING_DATASOURCE_PASSWORD=
-      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.H2Dialect
-      - FINVAULT_CORS_ALLOWED_ORIGINS=http://localhost:3000
-      - FINVAULT_JWT_SECRET=FinVaultSuperSecretKey2024ChangeInProductionMustBe256BitsLong
-    healthcheck:
-      test: ["CMD", "java", "-cp", "app.jar", "org.springframework.boot.loader.JarLauncher"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      SPRING_DATASOURCE_URL: jdbc:h2:mem:finvaultdb
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: ""
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.H2Dialect
+      FINVAULT_CORS_ALLOWED_ORIGINS: http://localhost:3000,http://localhost:3001
+      FINVAULT_JWT_SECRET: FinVaultSuperSecretKey2024ChangeInProductionMustBe256BitsLong
     restart: unless-stopped

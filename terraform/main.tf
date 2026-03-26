@@ -12,94 +12,89 @@ provider "aws" {
   region = var.aws_region
 }
 
-resource "aws_security_group" "finvault_sg" {
-  name        = "finvault-sg"
-  description = "Security group for FinVault application"
-  vpc_id      = data.aws_vpc.default.id
-
-  # Allow SSH
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.ssh_allowed_cidrs
-    description = "SSH access"
-  }
-
-  # Allow HTTP
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "HTTP access"
-  }
-
-  # Allow Frontend
-  ingress {
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Frontend access"
-  }
-
-  # Allow Backend
-  ingress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Backend API access"
-  }
-
-  # Allow all outbound traffic
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all outbound traffic"
-  }
-
-  tags = {
-    Name = "finvault-sg"
-  }
-}
-
-# Get default VPC
+# Default VPC
 data "aws_vpc" "default" {
   default = true
 }
 
-# Get latest Ubuntu AMI
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+# Ubuntu AMI
 data "aws_ami" "ubuntu" {
   most_recent = true
-  owners      = ["099720109477"] # Canonical
+  owners      = ["099720109477"]
 
   filter {
     name   = "name"
     values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
   }
+
   filter {
     name   = "state"
     values = ["available"]
   }
 }
 
-resource "aws_instance" "finvault" {
-  ami                    = data.aws_ami.ubuntu.id
-  instance_type          = var.instance_type
-  key_name               = var.key_pair_name
-  vpc_security_group_ids = [aws_security_group.finvault_sg.id]
+# Security Group
+resource "aws_security_group" "finvault_sg" {
+  name   = "finvault-sg"
+  vpc_id = data.aws_vpc.default.id
 
-  user_data = base64encode(templatefile("${path.module}/user_data.sh", {
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = var.ssh_allowed_cidrs
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# EC2
+resource "aws_instance" "finvault" {
+  ami                         = data.aws_ami.ubuntu.id
+  instance_type               = var.instance_type
+  key_name                    = var.key_pair_name
+  subnet_id                   = data.aws_subnets.default.ids[0]
+  vpc_security_group_ids      = [aws_security_group.finvault_sg.id]
+  associate_public_ip_address = true
+
+  user_data = templatefile("${path.module}/user_data.sh", {
     docker_registry = var.docker_registry
-  }))
+  })
 
   tags = {
     Name = "FinVault-EC2"
   }
-
-  depends_on = [aws_security_group.finvault_sg]
 }

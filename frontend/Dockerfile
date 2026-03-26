@@ -2,15 +2,16 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-# Install dependencies (use lockfile for deterministic builds)
-COPY package.json ./
+# Install dependencies (use lockfile for deterministic builds when available)
+COPY package*.json ./
 RUN npm install
+
 # Copy source and build
 COPY . .
 RUN npm run build
 
 # Stage 2: Serve with Nginx
-FROM nginx:alpine
+FROM nginx:1.27-alpine
 
 # Copy built app from build stage
 COPY --from=build /app/build /usr/share/nginx/html

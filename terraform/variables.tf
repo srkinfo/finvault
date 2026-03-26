@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS region for resources"
   type        = string
-  default     = "ap-south-2"
+  default     = "ap-south-1"
 }
 
 variable "instance_type" {
@@ -25,5 +25,5 @@ variable "ssh_allowed_cidrs" {
 variable "docker_registry" {
   description = "Docker registry for pulling images"
   type        = string
-  default     = "ramkumar1207"
+  default     = "srkinfo"
 }

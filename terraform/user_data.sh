@@ -25,11 +25,12 @@ docker run -d \
   --name backend \
   -p 8080:8080 \
   -e SPRING_PROFILES_ACTIVE=prod \
+  -e FINVAULT_CORS_ALLOWED_ORIGINS=http://localhost:3000 \
   ${docker_registry}/finvault-backend:latest
 
 docker run -d \
   --name frontend \
-  -p 3000:3000 \
+  -p 3000:80 \
   ${docker_registry}/finvault-frontend:latest
 
 # Log completion
