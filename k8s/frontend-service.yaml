@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: finvault-frontend-service
+  namespace: finvault
+  labels:
+    app: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+  ports:
+    - port: 80
+      targetPort: 80
