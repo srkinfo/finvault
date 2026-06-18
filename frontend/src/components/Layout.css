@@ -1,0 +1,24 @@
+.sidebar-nav-item:hover {
+  background: var(--hover);
+  color: var(--accent) !important;
+}
+
+.sidebar-nav-active {
+  color: var(--accent) !important;
+  background: var(--hover);
+  border-left: 3px solid var(--accent);
+}
+
+.nav-icon {
+  width: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.user-avatar {
+  transition: transform 0.2s ease;
+}
+
+.user-avatar:hover {
+  transform: scale(1.05);
+}

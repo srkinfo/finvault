@@ -5,11 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0a0a0f" />
     <title>FinVault — Smart Finance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --font-ui: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, sans-serif;
+        --font-mono: 'DM Mono', 'Consolas', 'Courier New', monospace;
+        --bg: #0F0F13;
+        --bg-card: #1A1A23;
+        --border: #2A2A35;
+        --text: #E8E8F0;
+        --text-secondary: #8888A0;
+        --text-muted: #555566;
+        --accent: #C9A84C;
+        --accent-light: #E8C96A;
+        --income: #22C55E;
+        --expense: #EF4444;
+        --savings: #C9A84C;
+        --rate: #3B82F6;
+        --hover: #252530;
+        --sidebar: #1A1A23;
+        --danger: #EF4444;
+        --input-bg: #22222E;
+        --input-border: #2A2A35;
+      }
       body {
         margin: 0;
-        background: #0a0a0f;
-        font-family: 'DM Sans', sans-serif;
+        background: var(--bg);
+        font-family: var(--font-ui);
+        transition: all 0.3s ease;
       }
       * { box-sizing: border-box; }
     </style>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import API from '../api/axios';
 
 export default function Login() {
@@ -8,6 +9,7 @@ export default function Login() {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const { login } = useAuth();
+  const { theme, mode, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -18,40 +20,40 @@ export default function Login() {
       login(res.data, res.data.token);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data || 'Something went wrong');
+      setError(err.response?.data || err.response?.data?.message || 'Something went wrong');
     }
   };
 
-  return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0f', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ background: '#111118', border: '1px solid #1e1e2e', borderRadius: 16, padding: 40, width: 400 }}>
-        <h1 style={{ color: '#c9a84c', fontFamily: 'serif', fontSize: 32, marginBottom: 8 }}>🏦 FinVault</h1>
-        <p style={{ color: '#888899', marginBottom: 24 }}>{isRegister ? 'Create your account' : 'Welcome back'}</p>
+  const s = styles(theme, mode);
 
-        {error && (
-          <div style={{ background: '#f4617a22', color: '#f4617a', padding: '10px 14px', borderRadius: 8, marginBottom: 16 }}>
-            {error}
-          </div>
-        )}
+  return (
+    <div style={s.container}>
+      <div style={s.card}>
+        <div style={s.topRow}>
+          <h1 style={s.logo}>🏦 FinVault</h1>
+          <span style={s.themeBtn} onClick={toggleTheme}>{mode === 'dark' ? '☀️' : '🌙'}</span>
+        </div>
+        <p style={s.sub}>{isRegister ? 'Create your account' : 'Welcome back'}</p>
+
+        {error && <div style={s.error}>{typeof error === 'string' ? error : 'Something went wrong'}</div>}
 
         <form onSubmit={handleSubmit}>
           {isRegister && (
-            <input style={inputStyle} placeholder="Full Name"
+            <input style={s.input} placeholder="Full Name"
               value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
           )}
-          <input style={inputStyle} placeholder="Email" type="email"
+          <input style={s.input} placeholder="Email" type="email"
             value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
-          <input style={inputStyle} placeholder="Password" type="password"
+          <input style={s.input} placeholder="Password" type="password"
             value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
-          <button type="submit" style={btnStyle}>
+          <button type="submit" style={s.btn}>
             {isRegister ? 'Create Account' : 'Login'} →
           </button>
         </form>
 
-        <p style={{ color: '#888899', textAlign: 'center', marginTop: 16, fontSize: 14 }}>
+        <p style={s.switchText}>
           {isRegister ? 'Already have an account? ' : "Don't have an account? "}
-          <span style={{ color: '#c9a84c', cursor: 'pointer' }}
-            onClick={() => setIsRegister(!isRegister)}>
+          <span style={s.switchLink} onClick={() => setIsRegister(!isRegister)}>
             {isRegister ? 'Login' : 'Register'}
           </span>
         </p>
@@ -60,16 +62,35 @@ export default function Login() {
   );
 }
 
-const inputStyle = {
-  width: '100%', padding: '10px 14px', marginBottom: 12,
-  background: '#16161f', border: '1px solid #1e1e2e',
-  borderRadius: 8, color: '#e8e8f0', fontSize: 14,
-  outline: 'none', boxSizing: 'border-box'
-};
-
-const btnStyle = {
-  width: '100%', padding: 12, marginTop: 8,
-  background: 'linear-gradient(135deg, #c9a84c, #e8c96a)',
-  border: 'none', borderRadius: 8, color: '#000',
-  fontWeight: 700, fontSize: 15, cursor: 'pointer'
-};
+const styles = (t, m) => ({
+  container: {
+    minHeight: '100vh', background: t.bg, display: 'flex',
+    alignItems: 'center', justifyContent: 'center',
+    fontFamily: "'Aptos', 'Segoe UI', Tahoma, sans-serif",
+  },
+  card: {
+    background: t.bgCard, border: `1px solid ${t.border}`,
+    borderRadius: 16, padding: 40, width: 400,
+  },
+  topRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  logo: { color: t.accent, fontFamily: "'Aptos', serif", fontSize: 32, marginBottom: 8 },
+  themeBtn: { fontSize: 20, cursor: 'pointer', color: t.textSecondary },
+  sub: { color: t.textSecondary, marginBottom: 24 },
+  error: {
+    background: `${t.danger}22`, color: t.danger,
+    padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 14,
+  },
+  input: {
+    width: '100%', padding: '10px 14px', marginBottom: 12, boxSizing: 'border-box',
+    background: t.inputBg, border: `1px solid ${t.inputBorder}`,
+    borderRadius: 8, color: t.text, fontSize: 14, outline: 'none',
+  },
+  btn: {
+    width: '100%', padding: 12, marginTop: 8,
+    background: `linear-gradient(135deg, ${t.accent}, ${t.accentLight})`,
+    border: 'none', borderRadius: 8, color: m === 'dark' ? '#000' : '#fff',
+    fontWeight: 700, fontSize: 15, cursor: 'pointer',
+  },
+  switchText: { color: t.textSecondary, textAlign: 'center', marginTop: 16, fontSize: 14 },
+  switchLink: { color: t.accent, cursor: 'pointer' },
+});

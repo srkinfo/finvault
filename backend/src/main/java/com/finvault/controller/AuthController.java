@@ -22,6 +22,21 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
+    private AuthDTO.AuthResponse buildAuthResponse(User user, String token) {
+        AuthDTO.AuthResponse resp = new AuthDTO.AuthResponse(token, user.getName(), user.getEmail(), user.getId());
+        resp.setPhoneNumber(user.getPhoneNumber());
+        resp.setProfilePicture(user.getProfilePicture());
+        resp.setCurrency(user.getCurrency());
+        resp.setTimezone(user.getTimezone());
+        resp.setLanguage(user.getLanguage());
+        resp.setMonthlyIncome(user.getMonthlyIncome());
+        resp.setTwoFactorEnabled(user.getTwoFactorEnabled());
+        resp.setEmailVerified(user.getEmailVerified());
+        resp.setDateOfBirth(user.getDateOfBirth());
+        resp.setSalaryRange(user.getSalaryRange());
+        return resp;
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody AuthDTO.RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail()))
@@ -33,7 +48,7 @@ public class AuthController {
         User saved = userRepository.save(user);
         String token = jwtUtil.generateToken(saved.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new AuthDTO.AuthResponse(token, saved.getName(), saved.getEmail(), saved.getId()));
+                .body(buildAuthResponse(saved, token));
     }
 
     @PostMapping("/login")
@@ -42,7 +57,9 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setLastLogin(java.time.LocalDateTime.now());
+        userRepository.save(user);
         String token = jwtUtil.generateToken(user.getEmail());
-        return ResponseEntity.ok(new AuthDTO.AuthResponse(token, user.getName(), user.getEmail(), user.getId()));
+        return ResponseEntity.ok(buildAuthResponse(user, token));
     }
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,8 +32,33 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    // ===== Profile Fields =====
+    @Column(length = 20)
+    private String phoneNumber;
+
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
+
+    @Column(name = "profile_picture", length = 500)
+    private String profilePicture;
+
+    @Column(name = "currency", length = 3)
+    @Builder.Default
+    private String currency = "INR";
+
+    @Column(name = "timezone", length = 50)
+    @Builder.Default
+    private String timezone = "Asia/Kolkata";
+
+    @Column(name = "language", length = 10)
+    @Builder.Default
+    private String language = "en";
+
     @Column(name = "monthly_income")
     private Double monthlyIncome;
+
+    @Column(name = "salary_range", length = 50)
+    private String salaryRange;
 
     @Column(name = "savings_goal")
     private Double savingsGoal;
@@ -41,13 +67,28 @@ public class User {
     @Builder.Default
     private RiskProfile riskProfile = RiskProfile.MODERATE;
 
-    @Column(name = "currency", length = 3)
+    // ===== Security Fields =====
+    @Column(name = "two_factor_enabled")
     @Builder.Default
-    private String currency = "USD";
+    private Boolean twoFactorEnabled = false;
+
+    @Column(name = "email_verified")
+    @Builder.Default
+    private Boolean emailVerified = false;
 
     @Column(name = "created_at")
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at")
+    @Builder.Default
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @Column(name = "last_login")
+    private LocalDateTime lastLogin;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Transaction> transactions;

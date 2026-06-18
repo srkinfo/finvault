@@ -30,8 +30,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: finvault123
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
-      FINVAULT_JWT_SECRET: FinVaultSuperSecretKey2024ChangeInProduction
-      FINVAULT_JWT_EXPIRATION: 86400000
+      JWT_SECRET: FinVaultSuperSecretKey2024ChangeInProductionMustBe256BitsLong
+      JWT_EXPIRATION: 86400000
       FINVAULT_CORS_ALLOWED_ORIGINS: http://localhost:3000
     depends_on:
       postgres:
