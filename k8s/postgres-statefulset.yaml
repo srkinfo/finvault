@@ -57,7 +57,7 @@ spec:
               command:
                 - pg_isready
                 - -U
-                - postgres
+                - finvault
             initialDelaySeconds: 5
             periodSeconds: 5
   volumeClaimTemplates:

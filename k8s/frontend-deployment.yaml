@@ -17,14 +17,10 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: finvault/frontend:latest
-          imagePullPolicy: Never
+          image: finvault-frontend:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
-
-          env:
-            - name: REACT_APP_API_URL
-              value: "http://finvault-backend-service/api"
 
           readinessProbe:
             httpGet:
