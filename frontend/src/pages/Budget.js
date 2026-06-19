@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import Layout from '../components/Layout';
 import API from '../api/axios';
@@ -16,11 +16,11 @@ export default function Budget() {
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
 
-  const load = () => {
+  const load = useCallback(() => {
     API.get(`/budgets?month=${month}&year=${year}`).then(res => setBudgets(Array.isArray(res.data) ? res.data : [])).catch(() => {});
     API.get(`/budgets/overview/${month}/${year}`).then(res => setOverview(res.data)).catch(() => {});
-  };
-  useEffect(() => { load(); }, [month, year]);
+  }, [month, year]);
+  useEffect(() => { load(); }, [load]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
