@@ -1,0 +1,135 @@
+name: Deploy to AWS EKS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+  PROJECT_NAME: finvault
+  CLUSTER_NAME: finvault-eks
+
+jobs:
+  deploy:
+    name: Deploy to EKS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2.0.2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.8.0
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6.3.0
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/${{ env.PROJECT_NAME }}-backend:latest
+            ${{ env.ECR_REGISTRY }}/${{ env.PROJECT_NAME }}-backend:${{ github.sha }}
+          cache-from: type=registry,ref=${{ env.ECR_REGISTRY }}/${{ env.PROJECT_NAME }}-backend:buildcache
+          cache-to: type=registry,ref=${{ env.ECR_REGISTRY }}/${{ env.PROJECT_NAME }}-backend:buildcache,mode=max
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6.3.0
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/${{ env.PROJECT_NAME }}-frontend:latest
+            ${{ env.ECR_REGISTRY }}/${{ env.PROJECT_NAME }}-frontend:${{ github.sha }}
+          cache-from: type=registry,ref=${{ env.ECR_REGISTRY }}/${{ env.PROJECT_NAME }}-frontend:buildcache
+          cache-to: type=registry,ref=${{ env.ECR_REGISTRY }}/${{ env.PROJECT_NAME }}-frontend:buildcache,mode=max
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
+
+      - name: Deploy to Kubernetes
+        run: |
+          # Update image tags
+          sed -i "s|image: finvault-backend:latest|image: ${{ env.ECR_REGISTRY }}/${{ env.PROJECT_NAME }}-backend:${{ github.sha }}|g" k8s/backend-deployment.yaml
+          sed -i "s|image: finvault-frontend:latest|image: ${{ env.ECR_REGISTRY }}/${{ env.PROJECT_NAME }}-frontend:${{ github.sha }}|g" k8s/frontend-deployment.yaml
+
+          # Apply all Kubernetes manifests
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/secrets.yaml -n finvault
+          kubectl apply -f k8s/postgres-statefulset.yaml -n finvault
+          kubectl apply -f k8s/backend-service.yaml -n finvault
+          kubectl apply -f k8s/backend-deployment.yaml -n finvault
+          kubectl apply -f k8s/frontend-service.yaml -n finvault
+          kubectl apply -f k8s/frontend-deployment.yaml -n finvault
+          kubectl apply -f k8s/hpa.yaml -n finvault
+          kubectl apply -f k8s/ingress.yaml -n finvault
+
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/finvault-backend -n finvault --timeout=300s
+          kubectl rollout status deployment/finvault-frontend -n finvault --timeout=300s
+
+      - name: Get deployment info
+        run: |
+          echo "### Deployment Status" >> $GITHUB_STEP_SUMMARY
+          kubectl get pods -n finvault >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Ingress" >> $GITHUB_STEP_SUMMARY
+          kubectl get ingress -n finvault >> $GITHUB_STEP_SUMMARY
+
+  terraform:
+    name: Terraform Infrastructure
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3.9.0
+        with:
+          terraform_version: 1.9.8
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -no-color -out=tfplan
+        env:
+          TF_VAR_admin_user_arn: ${{ secrets.ADMIN_USER_ARN }}
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve tfplan
+        env:
+          TF_VAR_admin_user_arn: ${{ secrets.ADMIN_USER_ARN }}

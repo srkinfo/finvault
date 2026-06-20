@@ -1,16 +1,44 @@
-# Java 
-target/ 
-*.class 
-*.jar 
-# Node 
-node_modules/ 
-build/ 
-.env 
-# IDE 
-.idea/ 
-.vscode/ 
-*.iml 
-# Terraform 
-.terraform/ 
-*.tfstate 
-*.tfvars 
+# Java
+target/
+*.class
+*.jar
+
+# Node
+node_modules/
+build/
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfplan
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+backend-logs.txt
+
+# Diagnostic scripts
+check-local.sh
+check-local.bat
+
+# Docker
+docker-compose.override.yml
+
+# Temporary files
+*.tmp
+*.temp

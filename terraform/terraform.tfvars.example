@@ -1,0 +1,35 @@
+# AWS Configuration
+aws_region = "ap-south-1"
+
+# Project Configuration
+project_name = "finvault"
+cluster_name = "finvault-eks"
+kubernetes_version = "1.28"
+
+# VPC Configuration
+vpc_cidr = "10.0.0.0/16"
+availability_zones = ["ap-south-1a", "ap-south-1b", "ap-south-1c"]
+private_subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+public_subnet_cidrs = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+single_nat_gateway = true
+
+# Node Group Configuration
+node_group_desired_size = 2
+node_group_min_size = 1
+node_group_max_size = 5
+node_instance_types = ["t3.medium"]
+
+# IAM Configuration - Replace with your IAM user/role ARN
+# Get your ARN with: aws sts get-caller-identity --query Arn --output text
+admin_user_arn = "arn:aws:iam::123456789012:user/your-username"
+
+# Database Configuration (only needed if using RDS instead of StatefulSet)
+# db_password = "YourSecurePassword123!"
+
+# Tags
+tags = {
+  Environment = "production"
+  Project     = "finvault"
+  ManagedBy   = "terraform"
+  Owner       = "your-email@example.com"
+}
